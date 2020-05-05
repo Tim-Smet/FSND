@@ -66,27 +66,275 @@ One note before you delve into your tasks: for each endpoint you are expected to
 8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
-REVIEW_COMMENT
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
+## Endpoints
 
-GET '/categories'
+### GET `/categories`
+
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
+- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs.
 
+```json
+{
+  "categories": {
+    "1": "Science", 
+    "2": "Art", 
+    "3": "Geography", 
+    "4": "History", 
+    "5": "Entertainment", 
+    "6": "Sports"
+  }, 
+  "success": true, 
+  "total_categories": 6
+}
+```
+
+### GET `/questions`
+
+- Fetches paginated questions in the groups of 10 questions per page.
+- Request Arguments: page `/questions?page=1` - In case `/questions`, default is `1`
+- Returns: An object with questions for the page specified in the request along with categories and total number of questions
+
+```json
+{
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "current_category": [],
+  "questions": [
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    ...,
+    {
+      "answer": "Maya Angelou",
+      "category": 4,
+      "difficulty": 2,
+      "id": 5,
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    }
+  ],
+  "success": true,
+  "total_questions": 20
+}
+
+```
+
+### GET `/categories/<int:category_id>/questions`
+
+- Fetches paginated questions in the groups of 10 questions per page filtered by category.
+- Request Arguments: page `/categories/1/questions?page=1` - In case `/categories/1/questions`, default is `1`
+- Returns: An object with questions for the page specified in the request along with current category and total number of questions
+
+```json
+{
+  "current_category": {
+    "id": 1, 
+    "type": "Science"
+  }, 
+  "questions": [
+    {
+      "answer": "Alexander Fleming", 
+      "category": 1, 
+      "difficulty": 3, 
+      "id": 21, 
+      "question": "Who discovered penicillin?"
+    }, 
+    {
+      "answer": "Blood", 
+      "category": 1, 
+      "difficulty": 4, 
+      "id": 22, 
+      "question": "Hematology is a branch of medicine involving the study of what?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 20
+}
+```
+
+### DELETE `/questions/<int:question_id>`
+
+- Delete a specific question based on it's id
+- Request Arguments: None
+- Returns: An object with deleted question's id and total number questions
+
+```json
+{
+  "question": 4, 
+  "success": true, 
+  "total_questions": 19
+}
+```
+
+### POST `/questions`
+
+- Searches the database for questions containing the term provided as part of request payload
+- Request Payload: Takes a json object with a property `searchTerm` which holds a string for searching the questions containing that search term
+
+```json
+{
+    "searchTerm":"title"
+}
+```
+
+- Returns: An object with a list of questions macthing the search term along with categories they belong to and total number of questions.
+
+```json
+{
+  "current_category": [
+    4, 
+    5
+  ], 
+  "questions": [
+    {
+      "answer": "Maya Angelou", 
+      "category": 4, 
+      "difficulty": 2, 
+      "id": 5, 
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    }, 
+    {
+      "answer": "Edward Scissorhands", 
+      "category": 5, 
+      "difficulty": 3, 
+      "id": 6, 
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+    }
+  ], 
+  "total_questions": 19
+}
+```
+
+### POST `/questions`
+
+- Creates a new question in the database based on the request payload
+- Request Payload: A JSON object containing question text, answer text, difficulty number and category id
+
+```json
+{
+    "question":"What is the capital of Pakistan?",
+    "answer":"Islamabad",
+    "difficulty":"3",
+    "category":"3"
+}
+```
+
+- Returns: An object with id of question created, list of first page of all questions and total number of questions.
+
+```json
+{
+  "created": 27, 
+  "questions": [
+    {
+      "answer": "Maya Angelou", 
+      "category": 4, 
+      "difficulty": 2, 
+      "id": 5, 
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    }, 
+    ...,
+    {
+      "answer": "Escher", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 16, 
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 20
+}
+```
+
+### POST `/quizzes`
+
+- Fetches questions to play the quiz.
+- Takes category and previous question parameters
+- Returns a random questions within the given category and which is not one of the previous questions
+- Request Payload: list of ids of previous questions and quiz category object
+
+```json
+{
+    "previous_questions":[21],
+    "quiz_category":{
+        "type":"Science",
+        "id":"1"
+    }
+}
+```
+
+- Returns: An object with question
+
+```json
+{
+  "question": {
+    "answer": "Blood", 
+    "category": 1, 
+    "difficulty": 4, 
+    "id": 22, 
+    "question": "Hematology is a branch of medicine involving the study of what?"
+  }, 
+  "success": true
+}
+
+```
+
+## Errors
+
+### 404 RESOURCE NOT FOUND
+
+```json
+{
+    "message": "resource not found",
+    "success": false
+}
+```
+
+### 500 INTERNAL SERVER ERROR
+
+```json
+{
+    "message": "internal server error",
+    "success": false
+}
+```
+
+### 400 BAD REQUEST
+
+```json
+{
+    "message": "bad request",
+    "success": false
+}
+```
+
+### 405 METHOD NOT ALLOWED
+
+```json
+{
+    "message": "method not allowed",
+    "success": false
+}
+```
+
+### 422 UNPROCESSABLE
+
+```json
+{
+    "message": "unprocessable",
+    "success": false
+}
 ```
 
 
