@@ -1,5 +1,5 @@
 --
--- PostgreSQL database dump
+-- carynQL database dump
 --
 
 -- Dumped from database version 11.3
@@ -185,6 +185,6 @@ ALTER TABLE ONLY public.questions
 
 
 --
--- PostgreSQL database dump complete
+-- carynQL database dump complete
 --
 
